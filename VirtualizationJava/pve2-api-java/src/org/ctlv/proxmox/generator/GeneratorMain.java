@@ -85,13 +85,14 @@ public class GeneratorMain {
 				for (LXC lxc : myCTsPerServer.get(Constants.SERVER1)) {
 					memOnServer3 = memOnServer3+(lxc.getMem()) ;
 					System.out.println("memOnServer3: "+memOnServer3);
+
 				}
 			}
-			
 			if (myCTsPerServer.get(Constants.SERVER2)!= null) {
 				for (LXC lxc : myCTsPerServer.get(Constants.SERVER2)) {
 					memOnServer4 = memOnServer4+ (lxc.getMem());
 					System.out.println("memOnServer4: " +memOnServer4);
+
 				}
 			}
 		
@@ -110,7 +111,7 @@ public class GeneratorMain {
 			
 			System.out.println("memRatioS4 :"+memRatioOnServer4);
 		
-			if (memOnServer3 <= memRatioOnServer3 && memOnServer4 <= memRatioOnServer4) {  // Exemple de condition de l'arrêt de la génération de CTs
+			if (memOnServer3 <= memAllowedOnServer3 && memOnServer4 <= memAllowedOnServer4) {  // Exemple de condition de l'arrêt de la génération de CTs
 				
 				// choisir un serveur aléatoirement avec les ratios spécifiés 66% vs 33%
 				String serverName;
@@ -127,6 +128,16 @@ public class GeneratorMain {
 				System.out.println(ctName);
 				String ctIDs = ""+ctID;
 				api.createCT(serverName, ctIDs, ctName, Constants.RAM_SIZE[1]);
+				while(api.getCT(serverName, ctIDs).getStatus().equals("stopped")) {
+					try {
+						api.startCT(serverName, ctIDs);
+					}catch(IOException e) {
+						Thread.sleep(5000);
+
+					}
+				}
+				System.out.println("Création + lancement fini");
+				
 				
 								
 				// planifier la prochaine création
